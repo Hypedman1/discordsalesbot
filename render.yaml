@@ -1,0 +1,11 @@
+services:
+  - type: worker
+    name: nft-sale-watcher
+    runtime: python
+    repo: https://github.com/YOUR_USERNAME/YOUR_REPO
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: DISCORD_BOT_TOKEN
+        sync: false
