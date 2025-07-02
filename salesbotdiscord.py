@@ -21,9 +21,7 @@ async def send_msg(txt, imgurl):
             color=0x00ff00
         )
         embed.set_image(url=imgurl)
-        await channel.send(content="WTF", embed=embed)
-    else:
-        print("wtfhi")
+        await channel.send(embed=embed)
 
 RPC_URL = "https://rpc.hyperliquid.xyz/evm"
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
@@ -38,7 +36,7 @@ target_nft_address = "0x03a64a8f28d73d47682b69b9ea69635aa9886956"
 
 
 async def check_sales():
-    latest_checked = 7265268 
+    latest_checked = 7320882 - 1
     posts = deque()
     while True:
         try:
@@ -46,7 +44,7 @@ async def check_sales():
             print(current_block)
             if current_block > latest_checked:
                 for block_num in range(latest_checked + 1, current_block + 1):
-                    # 🔎 1. Check for ItemSold
+                    
                     item_logs = item_sold_event.get_logs(from_block=block_num, to_block=block_num)
                     for ev in item_logs:
                         args = ev["args"]
@@ -57,6 +55,8 @@ async def check_sales():
                         sale_info = (
                             f"Price: {w3.from_wei(args['pricePerItem'], 'ether')} HYPE\n"
                             f"Tx: {tx}"
+                            f"Buyer: {args['buyer']}"
+                            f"Seller: {args['seller']}"
                         )
                         if tokenid < 100:
                             t = "00" + str(tokenid)
@@ -67,7 +67,6 @@ async def check_sales():
                         url = "https://s2x436rizqikgxbauhaxlpg3yszvowsnuug4rarkre7ajba5t4za.arweave.net/lq_N-ijMEKNcIKHBdbzbxLNXWk2lDciCKok-BIQdnzI/" + t + ".jpg"
                         posts.append([[tokenid, sale_info], url])
 
-                    # 🔎 2. Check for BidAccepted
                     bid_logs = bid_accepted_event.get_logs(from_block=block_num, to_block=block_num)
                     for ev in bid_logs:
                         args = ev["args"]
@@ -78,6 +77,8 @@ async def check_sales():
                         sale_info = (
                             f"Price: {w3.from_wei(args['pricePerItem'], 'ether')} HYPE\n"
                             f"Tx: {tx}"
+                            f"Buyer: {args['bidder']}"
+                            f"Seller: {args['seller']}"
                         )
                         if tokenid < 100:
                             t = "00" + str(tokenid)
