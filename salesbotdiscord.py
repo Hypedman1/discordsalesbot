@@ -6,8 +6,7 @@ from collections import deque
 import os
 
 token = os.getenv("DISCORD_BOT_TOKEN")
-channel_id = 858272488530247703
-
+channel_id = os.getenv("CHANNEL_ID")
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
@@ -36,15 +35,15 @@ target_nft_address = "0x03a64a8f28d73d47682b69b9ea69635aa9886956"
 
 
 async def check_sales():
-    latest_checked = 7320882 - 1
+    latest_checked = w3.eth.block_number
     posts = deque()
     while True:
         try:
-            current_block = latest_checked + 2
+            current_block = w3.eth.block_number
             print(current_block)
             if current_block > latest_checked:
                 for block_num in range(latest_checked + 1, current_block + 1):
-                    
+
                     item_logs = item_sold_event.get_logs(from_block=block_num, to_block=block_num)
                     for ev in item_logs:
                         args = ev["args"]
@@ -52,11 +51,15 @@ async def check_sales():
                             continue
                         tx = "https://purrsec.com/tx/" + ev['transactionHash'].hex()
                         tokenid = int(args['tokenId']) + 1
+                        buyer = args['buyer']
+                        buyer = buyer[:6] + "..." + buyer[-4:]
+                        seller = args['seller']
+                        seller = seller[:6] + "..." + seller[-4:]
                         sale_info = (
                             f"Price: {w3.from_wei(args['pricePerItem'], 'ether')} HYPE\n"
+                            f"Buyer: {buyer}\n"
+                            f"Seller: {seller}\n"
                             f"Tx: {tx}"
-                            f"Buyer: {args['buyer']}"
-                            f"Seller: {args['seller']}"
                         )
                         if tokenid < 100:
                             t = "00" + str(tokenid)
@@ -74,11 +77,15 @@ async def check_sales():
                             continue
                         tx = "https://purrsec.com/tx/" + ev['transactionHash'].hex()
                         tokenid = int(args['tokenId']) + 1
+                        buyer = args['bidder']
+                        buyer = buyer[:6] + "..." + buyer[-4:]
+                        seller = args['seller']
+                        seller = seller[:6] + "..." + seller[-4:]
                         sale_info = (
                             f"Price: {w3.from_wei(args['pricePerItem'], 'ether')} HYPE\n"
+                            f"Buyer: {buyer}\n"
+                            f"Seller: {seller}\n"
                             f"Tx: {tx}"
-                            f"Buyer: {args['bidder']}"
-                            f"Seller: {args['seller']}"
                         )
                         if tokenid < 100:
                             t = "00" + str(tokenid)
