@@ -15,8 +15,8 @@ async def send_msg(txt, imgurl):
     channel = client.get_channel(channel_id)
     if channel:
         embed = discord.Embed(
-            title="HYPEMAN #" + str(txt[0]) + " SALE!",
-            description=txt[1],
+            title="HYPEMAN #" + str(txt[0]) + " was bought for " + str(txt[1]) + " $HYPE",
+            description=txt[2],
             color=0x00ff00
         )
         embed.set_image(url=imgurl)
@@ -55,11 +55,12 @@ async def check_sales():
                         buyer = buyer[:6] + "..." + buyer[-4:]
                         seller = args['seller']
                         seller = seller[:6] + "..." + seller[-4:]
+                        price = w3.from_wei(args['pricePerItem'], 'ether')
                         sale_info = (
-                            f"Price: {w3.from_wei(args['pricePerItem'], 'ether')} HYPE\n"
                             f"Buyer: {buyer}\n"
                             f"Seller: {seller}\n"
-                            f"Tx: {tx}"
+                            f"Tx: {tx}\n\n"
+                            f"https://drip.trade/collections/hypeman"
                         )
                         if tokenid < 100:
                             t = "00" + str(tokenid)
@@ -68,7 +69,7 @@ async def check_sales():
                         else:
                             t = str(tokenid)
                         url = "https://s2x436rizqikgxbauhaxlpg3yszvowsnuug4rarkre7ajba5t4za.arweave.net/lq_N-ijMEKNcIKHBdbzbxLNXWk2lDciCKok-BIQdnzI/" + t + ".jpg"
-                        posts.append([[tokenid, sale_info], url])
+                        posts.append([[tokenid, price, sale_info], url])
 
                     bid_logs = bid_accepted_event.get_logs(from_block=block_num, to_block=block_num)
                     for ev in bid_logs:
@@ -81,11 +82,12 @@ async def check_sales():
                         buyer = buyer[:6] + "..." + buyer[-4:]
                         seller = args['seller']
                         seller = seller[:6] + "..." + seller[-4:]
+                        price = w3.from_wei(args['pricePerItem'], 'ether')
                         sale_info = (
-                            f"Price: {w3.from_wei(args['pricePerItem'], 'ether')} HYPE\n"
                             f"Buyer: {buyer}\n"
                             f"Seller: {seller}\n"
-                            f"Tx: {tx}"
+                            f"Tx: {tx}\n\n"
+                            f"https://drip.trade/collections/hypeman"
                         )
                         if tokenid < 100:
                             t = "00" + str(tokenid)
@@ -94,7 +96,7 @@ async def check_sales():
                         else:
                             t = str(tokenid)
                         url = "https://s2x436rizqikgxbauhaxlpg3yszvowsnuug4rarkre7ajba5t4za.arweave.net/lq_N-ijMEKNcIKHBdbzbxLNXWk2lDciCKok-BIQdnzI/" + t + ".jpg"
-                        posts.append([[tokenid, sale_info], url])
+                        posts.append([[tokenid, price, sale_info], url])
                 latest_checked = current_block
             if posts:
                 t1, t2 = posts.popleft()
