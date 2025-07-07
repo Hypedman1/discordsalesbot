@@ -28,7 +28,7 @@ def get_nft_image_url(token_id):
     return image_url
 
 token = os.getenv("DISCORD_BOT_TOKEN")
-channel_id = 1389748112981102595
+channel_id = 1391562772038422569
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
@@ -59,11 +59,11 @@ target_nft_address = "0x03a64a8f28d73d47682b69b9ea69635aa9886956"
 
 
 async def check_sales():
-    latest_checked = 7730095 - 1
+    latest_checked = w3.eth.block_number
     posts = deque()
     while True:
         try:
-            current_block = 7730095+ 2
+            current_block = w3.eth.block_number
             print(current_block)
             if current_block > latest_checked:
                 for block_num in range(latest_checked + 1, current_block + 1):
