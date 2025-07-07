@@ -28,7 +28,7 @@ def get_nft_image_url(token_id):
     return image_url
 
 token = os.getenv("DISCORD_BOT_TOKEN")
-channel_id = os.getenv("CHANNEL_ID")
+channel_id = 1389748112981102595
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
