@@ -5,6 +5,7 @@ import asyncio
 from collections import deque
 import os
 import threading
+import requests
 from flask import Flask
 
 app = Flask(__name__)
@@ -17,6 +18,27 @@ def run_flask():
     app.run(host="0.0.0.0", port=port)
 
 threading.Thread(target=run_flask).start()
+
+erc721_abi = [{
+    "constant": True,
+    "inputs": [{"name": "_tokenId", "type": "uint256"}],
+    "name": "tokenURI",
+    "outputs": [{"name": "", "type": "string"}],
+    "type": "function"
+}]
+
+def get_nft_image_url(token_id):
+    token_uri = nft_contract.functions.tokenURI(token_id).call()
+    if token_uri.startswith("ipfs://"):
+        token_uri = token_uri.replace("ipfs://", "https://ipfs.io/ipfs/")
+
+    metadata = requests.get(token_uri).json()
+    image_url = metadata.get("image", "")
+
+    if image_url.startswith("ipfs://"):
+        image_url = image_url.replace("ipfs://", "https://ipfs.io/ipfs/")
+
+    return image_url
 
 token = os.getenv("DISCORD_BOT_TOKEN")
 channel_id = os.getenv("CHANNEL_ID")
@@ -42,17 +64,19 @@ with open("abi.json") as f:
 
 contract_address = w3.to_checksum_address("0x7be8f48894d9ec0528ca70d9151cf2831c377be0")
 contract = w3.eth.contract(address=contract_address, abi=abi)
+nft_contract_address = w3.to_checksum_address("0x03a64a8f28d73d47682b69b9ea69635aa9886956")
+nft_contract = w3.eth.contract(address=nft_contract_address, abi=erc721_abi)
 item_sold_event = contract.events.ItemSold
 bid_accepted_event = contract.events.BidAccepted
 target_nft_address = "0x03a64a8f28d73d47682b69b9ea69635aa9886956"
 
 
 async def check_sales():
-    latest_checked = w3.eth.block_number
+    latest_checked = 7730095 - 1
     posts = deque()
     while True:
         try:
-            current_block = w3.eth.block_number
+            current_block = 7730095+ 2
             print(current_block)
             if current_block > latest_checked:
                 for block_num in range(latest_checked + 1, current_block + 1):
@@ -81,7 +105,7 @@ async def check_sales():
                             t = "0" + str(tokenid)
                         else:
                             t = str(tokenid)
-                        url = "https://s2x436rizqikgxbauhaxlpg3yszvowsnuug4rarkre7ajba5t4za.arweave.net/lq_N-ijMEKNcIKHBdbzbxLNXWk2lDciCKok-BIQdnzI/" + t + ".jpg"
+                        url = get_nft_image_url(tokenid - 1)
                         posts.append([[tokenid, price, sale_info], url])
 
                     bid_logs = bid_accepted_event.get_logs(from_block=block_num, to_block=block_num)
@@ -108,7 +132,7 @@ async def check_sales():
                             t = "0" + str(tokenid)
                         else:
                             t = str(tokenid)
-                        url = "https://s2x436rizqikgxbauhaxlpg3yszvowsnuug4rarkre7ajba5t4za.arweave.net/lq_N-ijMEKNcIKHBdbzbxLNXWk2lDciCKok-BIQdnzI/" + t + ".jpg"
+                        url = get_nft_image_url(tokenid - 1)
                         posts.append([[tokenid, price, sale_info], url])
                 latest_checked = current_block
             if posts:
